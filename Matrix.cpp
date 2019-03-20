@@ -45,6 +45,8 @@ Matrix& Matrix::operator=(const Matrix& mt) {
 			matrix[i][j] = mt[i][j];
 	return *this;
 }
+
+
 Matrix Matrix::T() {
 	Matrix res(columns, rows);
 	for (int i = 0; i < rows; i++)
@@ -140,11 +142,28 @@ Matrix absMatrix(Matrix& m1) {
 Matrix operator*(float d, Matrix& m1) {
 	Matrix result(m1.getRows(), m1.getColumns());
 	for (int i = 0; i < m1.getRows(); i++)
-		for (int j = 0; j < m1.getColumns(); j++)
-			for (int k = 0; k < m1.getColumns(); k++)
-				result[i][j] = m1[i][k] * d;
+		for (int j = 0; j < m1.getColumns(); j++)			
+				result[i][j] = m1[i][j] * d;
 	return result;
 }
+
+ Matrix sum(const Matrix& mt1, const Matrix& mt2)
+ {	
+	Matrix res(mt1.rows, mt1.columns);
+	for (int i = 0; i < mt1.rows; i++)
+		for (int j = 0; j < mt1.columns; j++)
+			(*(res[i]+j)) = (*(mt1[i]+j)) + (*(mt2[i]+j));
+	return res;
+} 
+
+Matrix multipleNumber(float d, const Matrix& m1) {
+	Matrix result(m1.getRows(), m1.getColumns());
+	for (int i = 0; i < m1.getRows(); i++)
+		for (int j = 0; j < m1.getColumns(); j++)			
+				*(result[i] + j) = ((*(m1[i]+j)) * d);
+	return result;
+}
+
 void Matrix::operator+=(Matrix& mat) {
 	for (int i = 0; i < this->rows; i++)
 		for (int j = 0; j < this->columns; j++)

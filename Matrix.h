@@ -21,12 +21,14 @@ public:
 	Matrix(const Matrix&);
 
 	~Matrix() {
-		if (matrix != nullptr){		
+		if (matrix != nullptr){
+		
 	for (int i = 0; i < rows; i++)
 		delete[]matrix[i];
 		delete[]matrix;
 	}
 }
+	
 	Matrix Matrix::transpose(const Matrix &mt);
 	int getColumns() const { return columns; }
 	int getRows() const { return rows; }
@@ -35,9 +37,11 @@ public:
 	Matrix& operator=(const Matrix&);
 	Matrix reshape(int rows, int columns) const;
 	friend Matrix operator*(Matrix&, Matrix&);
+	friend Matrix sum(const Matrix&, const Matrix&);
 	friend Matrix operator/(Matrix&, float);
 	friend Matrix operator*(float, Matrix&);
 	friend Matrix absMatrix(Matrix&);
+	friend Matrix multipleNumber(float d, const Matrix& m1);
 	friend std::ostream& operator<<(std::ostream& os, const Matrix& mt);
 	void operator+=(Matrix&);
 	bool operator==(const Matrix&);

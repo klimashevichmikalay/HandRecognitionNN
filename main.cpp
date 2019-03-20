@@ -10,132 +10,58 @@ using namespace std;
 
 int width = 48;
 int height = 48;
+void recognize(Matrix Y, Matrix W );
 Matrix processImage(String);
 void getScreens(String);
-void recognitionIm(Matrix Y, Matrix W );
 bool isSkinPixel(Mat im, int x, int y);
-Matrix train(Matrix* matrixs, int count);
+Matrix newTrain(Matrix* matrixs, int count);
+Matrix F(const Matrix& matrix);
 
-void testNN(){
-	Matrix matrixs[2];
-	Matrix m1 = Matrix(4,4);
-	Matrix m2 = Matrix(4,4);
-	for(int i = 0; i < m1.getColumns(); i++)
-		for(int j = 0; j < m1.getColumns(); j++)
-		{
-			m1[i][j] = -1;
-			m2[i][j] = -1;
-		}
-
-		m1[0][3] = 1;
-		m1[0][2] = 1;
-		m1[0][1] = 1;
-		m1[0][0] = 1;
-
-		m2[3][3] = 1;
-		m2[2][2] = 1;
-		m2[1][1] = 1;
-		m2[0][0] = 1;
-
-		matrixs[0] = m1;
-		matrixs[1] = m2;
-
-		Matrix m11 = Matrix(4,4);
-	Matrix m21 = Matrix(4,4);
-	for(int i = 0; i < m11.getColumns(); i++)
-		for(int j = 0; j < m11.getColumns(); j++)
-		{
-			m11[i][j] = -1;
-			m21[i][j] = -1;
-		}
-
-		m11[0][3] = 1;
-		m11[1][2] = 1;
-		m11[0][1] = 1;
-		m11[0][0] = 1;
-
-		m21[3][3] = 1;
-		m21[2][3] = 1;
-		m21[2][0] = 1;
-		m21[0][0] = 1;
-		m21[1][0] = 1;
-		m21[3][0] = 1;
-	
-//
-	Matrix W = train(matrixs, 2);
-	cout << "\nm1: \n" << m1;
-	cout <<"\nbadm1: \n" << m11;
-	recognitionIm(m11, W);
-	cout << "\nm2: \n" << m2;
-	cout <<"\nbadm2: \n" << m21;
-	recognitionIm(m21, W);
+Matrix multiple(const Matrix &m1, const Matrix &m2)
+{
+	Matrix result(m1.getRows(), m2.getColumns());
+	for (int i = 0; i < m1.getRows(); i++)
+		for (int j = 0; j < m2.getColumns(); j++)
+			for (int k = 0; k < m1.getColumns(); k++)
+				(*((result[i]) + j)) = (*(m1[i] + k)) * (*(m2[k] + j));
+	return result;
 }
 
-
 int main(int argc, char** argv)
-{
-   // testNN();	
+{ 	
 	//int i =0;	
 	//getScreens("qwerty");
    // cout <<  processImage("qwerty0.JPG"); 
-	 //Matrix matrixs[2];
-    // matrixs[0] = processImage("ok0.JPG");  
-   //  matrixs[1] = processImage("ok1.JPG");  
-	/*matrixs[i++] = processImage("ok2.JPG");
-	matrixs[i++] = processImage("ok3.JPG");
-	matrixs[i++] = processImage("ok4.JPG"); 
-	matrixs[i++] = processImage("ok5.JPG"); 
-	matrixs[i++] = processImage("ok6.JPG");  
-	matrixs[i++] = processImage("victory0.JPG");  
-	matrixs[i++] = processImage("victory1.JPG");
-	matrixs[i++] = processImage("victory2.JPG");
-	matrixs[i++] = processImage("victory3.JPG");
-	matrixs[i++] = processImage("victory4.JPG");*/
-	//getScreens("newtest");
-	cout << processImage("newtest0.JPG");
-	//Matrix W = train(matrixs, 2);
-  //  recognitionIm(processImage("ok9.JPG"), W);
-	/*recognitionIm(processImage("ok8.JPG"), W);
-	recognitionIm(processImage("ok9.JPG"), W);
-	recognitionIm(processImage("victory5.JPG"), W);
-	recognitionIm(processImage("victory6.JPG"), W);
-	recognitionIm(processImage("victory7.JPG"), W);*/
+	 Matrix matrixs[2];
+     matrixs[0] = processImage("ok0.JPG");  
+     //matrixs[1] = processImage("ok1.JPG"); 
+	// matrixs[2] = processImage("ok2.JPG");
+	// matrixs[3] = processImage("ok3.JPG");
+	 matrixs[1] = processImage("victory0.JPG");
+		//getScreens("newtest");
+	
+	Matrix W = newTrain(matrixs, 2);
+    recognize(processImage("ok9.JPG"), W);
+	 recognize(processImage("test3.JPG"), W);
+	  recognize(processImage("victory7.JPG"), W);	
 
-	cin.get();
-	cin.get();
-	cin.get();
-	cin.get();
+
+	cin.get();	
 	return 0;
 }
 
-Matrix train(Matrix* matrixs, int count) {
-	float h = 0.8; // 0.7..0.9
+Matrix newTrain(Matrix* matrixs, int count) {
 	int N = height*width;
-    Matrix  W = Matrix(N, N);
-    
-	Matrix prevW;
-	int cnt = 0;
-	do {
-		cout << "\ntrain stage: " << cnt;
-		cnt++;
-		for (int i = 0; i < 2; i++) {
-		  {	
-			Matrix Xi = matrixs[i].reshape(height*width, 1);		
-			W = W + ((h / N) * (Xi - W * Xi) * Xi.T()); 
-		  }
-		}
-	   {	if (isDiff(W, prevW, 0.0001)) {			
-			std::cout << cnt << std::endl;
-			_getch();
-			break;
-		}
-	   }
-		prevW = W;
-	} while (true);
-	for (int i = 0; i < W.getRows(); i++)
-		W[i][i] = 0;
-
+	Matrix  W = Matrix(N, N);	
+	for (int i = 0; i < count; i++)   
+		W = sum(W,  multipleNumber(((float)(1.0 / (float)N)), multiple((matrixs[i].reshape(N, 1)), ((matrixs[i].reshape(N, 1)).T()))));	
 	return W;
+}
+
+void recognize(Matrix Y, Matrix W ){	
+	cout << "\n image before recognize:\n" << Y.reshape(height, width);	
+	Y = Y.reshape(height*width, 1);//cout << signMatrix(Q.reshape(height, width));
+	cout << "\nrecognized image:\n" << F((W*Y).reshape(height, width));	
 }
 
 Matrix F(const Matrix& matrix) { 
@@ -150,32 +76,6 @@ Matrix F(const Matrix& matrix) {
 		return result;
 }
 
-void recognitionIm(Matrix Y, Matrix W ){
-	cout << "\nim to recognize:\n" << Y;
-	int iteration = 1000;
-	Matrix Q;	
-	int count = 0;
-	Matrix prevQ;
-	Y = Y.reshape(height*width, 1);
-	do {
-		std::cout << "Iteration #" << count << std::endl;
-		Q = F(W*Y); 
-		if (Y == Q || prevQ == Q) {
-			cout << "\nNN worked good, answear: \n";
-			cout << signMatrix(Q.reshape(height, width));
-			return;
-		}
-		else {
-			prevQ = Y;
-			Y = Q;
-		}
-		count++;
-	} while (count < iteration);
-	cout << "\nNN worked bad, answear: \n";
-	cout << signMatrix(Q.reshape(height, width));
-}
-
-
 bool isSkinSquare(int startRow, int startCol, Mat im){
 	int skinPixels = 0;
 	for(int i = startRow; i < startRow + 10; i++){
@@ -185,14 +85,11 @@ bool isSkinSquare(int startRow, int startCol, Mat im){
 				skinPixels++;
 		}
 	}
-
 	if(skinPixels > 70)
 		return true;
 
 	return false;
 }
-
-
 
 typedef struct RGB {
 	float r;       // a fraction between 0 and 1
@@ -315,7 +212,7 @@ rgb hsv2rgb(hsv in)
 
 bool  isSkinPixel(Mat im, int x, int y)
 {
-	float B = 0;//abgr
+	float B = 0;
 	float G = 0;
 	float R = 0;
 	float A = 0;
@@ -408,35 +305,4 @@ Matrix processImage(String fileP)
 			}
 		}
 		return result;
-}
-
-void getSkinColors(){
-	Mat im   =  imread ( "test11.JPG",  CV_LOAD_IMAGE_COLOR );
-	float sumG = 0;
-	float sumR = 0;
-	std::vector<float> gVect;
-	std::vector<float> rVect;
-
-	for(int i = 0; i < im.rows; i++)
-		for(int j = 0; j < im.cols; j++)
-		{
-			float sum = float(im.at<cv::Vec3b>(i,j)[0]) + float(im.at<cv::Vec3b>(i,j)[1])  + float(im.at<cv::Vec3b>(i,j)[2]);
-			sumG += (float(im.at<cv::Vec3b>(i,j)[1]) / sum);
-			gVect.push_back(float(im.at<cv::Vec3b>(i,j)[1]) / sum);
-
-			sumR += (float(im.at<cv::Vec3b>(i,j)[2]) / sum);
-			rVect.push_back(float(im.at<cv::Vec3b>(i,j)[2]) / sum);
-		}
-		cout << endl << "averG: " << (sumG/(((float)im.rows) *( (float)im.cols))) << " averR: " << (sumR/(((float)im.rows) *( (float)im.cols)));
-		cout << endl << "gVectSize and rVectSize: " << gVect.size() << " and " << rVect.size();
-
-		cout << endl << "minG: " << *(std::min_element(std::begin(gVect), std::end(gVect)));
-		cout << endl << "maxG: " << *(std::max_element(std::begin(gVect), std::end(gVect)));
-
-
-		cout << endl << "minR: " << *(std::min_element(std::begin(rVect), std::end(rVect)));		
-		cout << endl << "maxR: " << *(std::max_element(std::begin(rVect), std::end(rVect)));
-
-		cin.get();
-		cin.get();
 }
