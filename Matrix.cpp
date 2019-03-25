@@ -159,6 +159,9 @@ shiftInfo Matrix::getShiftInfo()
 {
 	int _x = 1000;
 	int _y = 1000;
+	int _x1 = 0;
+	int _y1 = 0;
+	
 
 	for (int i = 0; i < rows; i++)	
 		for (int j = 0; j < cols; j++) 
@@ -170,12 +173,22 @@ shiftInfo Matrix::getShiftInfo()
 
 				if(j < _x)
 					_x = j;
+
+				if(i > _y1)
+					_y1 = i;
+
+				if(j > _x1)
+					_x1 = j;
 			}
+
+
 		}
 
 		shiftInfo si;
 		si.x = _x;
 		si.y = _y;
+		si.x1 = _x1;
+		si.y1 = _y1;
 
 		return si;
 }
@@ -191,38 +204,4 @@ void Matrix::show()
 				cout<<' ';		
 		cout << endl;
 	}
-}
-
-float Matrix::getScale()
-{
-	float x1 = 1000, x2 = 0;
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 0; j < cols; j++) 
-			if((*this)[i][j] == 1)
-			{	if(i < x1)				
-					x1 = i;
-				
-				if(i > x2)				
-					x2 = i;
-			}				
-	}
-
-	return sqrt(x1*x1 + x2*x2);
-
-	/*
-	double mydata[1];
-	Mat m1 = Mat(100,50, CV_64F, mydata);
-	imshow("this is you, smile! :)", m1);
-	if( waitKey(10) == 27 ){return 0;}
-	////////////////////
-	Mat bigImage = imread("redSquare.png", -1);
-	Mat lilImage = imread("blueSquare.png", -1);
-	Mat insetImage(bigImage, Rect(70, 70, 100, 100));
-	lilImage.copyTo(insetImage);
-	imshow("Overlay Image", bigImage);
-	////////////////
-
-	*/
-	
 }

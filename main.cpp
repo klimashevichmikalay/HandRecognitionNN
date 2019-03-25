@@ -23,29 +23,24 @@ Matrix F(const Matrix& matrix);
 Matrix train(Matrix* matrixs, int count);
 
 int main(int argc, char** argv)
-{	
-	
-
-	//getScreens("imageForLearn/skale");
+{
 	char arr[] = {'a'};
-	Matrix m = processImage("imageForLearn/hand.JPG", arr);
-	m.show();
-	//cout << "\nafter shift:\n";
-//	m.show();
+	//processImage("imageForLearn/recogn2.JPG", arr).show();
 
+	Matrix matrixs[3];
 
-/*Matrix matrixs[3];
-    
 	matrixs[0] = processImage("imageForLearn/image1.JPG", arr);	
 	matrixs[1] = processImage("imageForLearn/image2.JPG", arr); 	
 	matrixs[2] = processImage("imageForLearn/image3.JPG", arr);
 
 
 	Matrix W = train(matrixs,3);
-	recognize(processImage("imageForLearn/recogn1.JPG", arr), W);
+	
+    recognize(processImage("imageForLearn/recogn1.JPG", arr), W);
 	recognize(processImage("imageForLearn/recogn2.JPG", arr), W);
-	recognize(processImage("imageForLearn/recogn3.JPG", arr), W);*/
-
+	recognize(processImage("imageForLearn/recogn3.JPG", arr), W);
+	recognize(processImage("imageForLearn/realOk10.JPG", arr), W);
+	
 	cin.get();
 	return 0;
 }
@@ -303,7 +298,7 @@ void getScreens(String nameScreen) {
 			count++;
 			string str = ss.str();
 			String name = nameScreen + str;			
-		//	cv::resize(frame, frame, cv::Size(), 0.25, 0.25);
+			//	cv::resize(frame, frame, cv::Size(), 0.25, 0.25);
 			//cv::imwrite(name +  ".JPG", frame); 
 			//processImage(name +  ".JPG").show();
 		}
@@ -313,26 +308,35 @@ void getScreens(String nameScreen) {
 
 Mat correctImage(String fileP, Matrix m)
 {
-	Mat bgr;
-	float scale = m.getScale();	
+	Mat inImg = imread (fileP,  CV_LOAD_IMAGE_COLOR );
+	shiftInfo si =  m.getShiftInfo();
 
-	if(scale < 27 || scale > 33)
+	float scale =  sqrt(float(si.x1 - si.x + 2) * float(si.x1 - si.x  + 2)  + float(si.y1 - si.y) * float(si.y1 - si.y));
+
+	if(scale < 29.5 || scale > 29.5)
 	{
-
-
+		Mat outImg;
+		cv::resize(inImg, outImg, cv::Size(), 29.0 / scale, 29.0 / scale);
+		Rect myROI((si.x) * square * 29.0 / scale, ((si.y) * square * 29.0 / scale), ((si.x1+2)* square * 29.0 / scale) - ((si.x) * square * 29.0 / scale), ((si.y1)* square * 29.0 / scale) - ((si.y) * square * 29.0 / scale));
+		
+		Mat croppedImage;		
+		croppedImage = outImg(myROI);
+		
+		Mat m1(480, 640, CV_8UC3, Scalar(0, 0, 0));		
+		croppedImage.copyTo(m1.rowRange(0, croppedImage.rows).colRange(0,  croppedImage.cols));		
+		return m1;
 	}
-	else
-	{ bgr  =  imread (fileP,  CV_LOAD_IMAGE_COLOR );}
-	return  bgr;
+
+	return  inImg;
 }
 
 
 Matrix processImage(String fileP, char* arr)
 {
-	
+
 	Matrix result = Matrix(height, width);
 	Mat bgr  =  imread (fileP,  CV_LOAD_IMAGE_COLOR );
-	
+
 	Mat res;
 	pyrMeanShiftFiltering( bgr, res, 12, 12, 3);
 	cv::Mat bgra;
@@ -354,10 +358,8 @@ Matrix processImage(String fileP, char* arr)
 			else {
 				result[i/square][j/square] = -1;
 			}
-		}	
-
-		result.shiftUnits();		
-	    correctImage(fileP,result);		
+		}				
+		correctImage(fileP,result);		
 		return processImage(correctImage(fileP,result),  arr);
 }
 
@@ -366,7 +368,7 @@ Matrix processImage(Mat scaleMat, char* arr)
 	static bool flag  = false;
 	Matrix result = Matrix(height, width);
 	Mat bgr =  scaleMat;
-	
+
 
 	Mat res;
 	pyrMeanShiftFiltering( bgr, res, 12, 12, 3);

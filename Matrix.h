@@ -16,6 +16,8 @@ struct shiftInfo
 {
 	int x;
 	int y;
+	int x1;
+	int y1;	
 };
 
 class Matrix {
@@ -23,8 +25,7 @@ private:
 	int rows;
 	int cols;	
 	vector<vector<float>> matrix;
-	static bool cmp(float x, float y);	
-	shiftInfo getShiftInfo();
+	static bool cmp(float x, float y);		
 public:
 	inline int getRows() const;
 	inline int getCols() const;
@@ -44,5 +45,5 @@ public:
 	inline const vector<float> operator[](int p) const { return matrix[p]; }	
 	void show();
 	void shiftUnits();
-	float getScale();
+	shiftInfo getShiftInfo();
 };
