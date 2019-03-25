@@ -9,14 +9,22 @@
 #include <sstream>
 #include <numeric>
 #include <functional>
+#include <math.h>
 using namespace std;
+
+struct shiftInfo
+{
+	int x;
+	int y;
+};
 
 class Matrix {
 private:
 	int rows;
 	int cols;	
 	vector<vector<float>> matrix;
-	static bool cmp(float x, float y);
+	static bool cmp(float x, float y);	
+	shiftInfo getShiftInfo();
 public:
 	inline int getRows() const;
 	inline int getCols() const;
@@ -33,6 +41,8 @@ public:
 	Matrix T();	
 	Matrix reshape(int rows, int columns) const;
 	inline vector<float> & operator[](int x) { return matrix.at(x); }
-	inline const vector<float> operator[](int p) const { return matrix[p]; }
+	inline const vector<float> operator[](int p) const { return matrix[p]; }	
 	void show();
+	void shiftUnits();
+	float getScale();
 };

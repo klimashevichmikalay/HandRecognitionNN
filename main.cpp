@@ -14,7 +14,8 @@ const int height = 30;
 const int square = 16;
 
 void recognize(Matrix, Matrix);
-Matrix processImage(String fileP);
+Matrix processImage(Mat scaleMat, char* arr);
+Matrix processImage(String fileP, char* arr);
 void getScreens(String);
 bool isSkinPixel(Mat im, int x, int y);
 Matrix newTrain(Matrix* matrixs, int count);
@@ -24,18 +25,26 @@ Matrix train(Matrix* matrixs, int count);
 int main(int argc, char** argv)
 {	
 	
-	//processImage("imageForLearn/image1.JPG").show();	
 
-	Matrix matrixs[3];
-	matrixs[0] = processImage("imageForLearn/image1.JPG");	
-	matrixs[1] = processImage("imageForLearn/image2.JPG"); 	
-	matrixs[2] = processImage("imageForLearn/image3.JPG");
+	//getScreens("imageForLearn/skale");
+	char arr[] = {'a'};
+	Matrix m = processImage("imageForLearn/hand.JPG", arr);
+	m.show();
+	//cout << "\nafter shift:\n";
+//	m.show();
+
+
+/*Matrix matrixs[3];
+    
+	matrixs[0] = processImage("imageForLearn/image1.JPG", arr);	
+	matrixs[1] = processImage("imageForLearn/image2.JPG", arr); 	
+	matrixs[2] = processImage("imageForLearn/image3.JPG", arr);
 
 
 	Matrix W = train(matrixs,3);
-	recognize(processImage("imageForLearn/recogn1.JPG"), W);
-	recognize(processImage("imageForLearn/recogn2.JPG"), W);
-	recognize(processImage("imageForLearn/recogn3.JPG"), W);
+	recognize(processImage("imageForLearn/recogn1.JPG", arr), W);
+	recognize(processImage("imageForLearn/recogn2.JPG", arr), W);
+	recognize(processImage("imageForLearn/recogn3.JPG", arr), W);*/
 
 	cin.get();
 	return 0;
@@ -109,7 +118,7 @@ bool isSkinSquare(int startRow, int startCol, Mat im){
 				skinPixels++;
 		}
 	}
-	if(skinPixels >= 150)
+	if(skinPixels >= 200)
 		return true;
 
 	return false;
@@ -293,17 +302,37 @@ void getScreens(String nameScreen) {
 			ss << count;
 			count++;
 			string str = ss.str();
-			String name = nameScreen + str;
-			cv::imwrite(name +  ".JPG", frame); 
+			String name = nameScreen + str;			
+		//	cv::resize(frame, frame, cv::Size(), 0.25, 0.25);
+			//cv::imwrite(name +  ".JPG", frame); 
 			//processImage(name +  ".JPG").show();
 		}
 	}   
 }
 
-Matrix processImage(String fileP)
+
+Mat correctImage(String fileP, Matrix m)
 {
+	Mat bgr;
+	float scale = m.getScale();	
+
+	if(scale < 27 || scale > 33)
+	{
+
+
+	}
+	else
+	{ bgr  =  imread (fileP,  CV_LOAD_IMAGE_COLOR );}
+	return  bgr;
+}
+
+
+Matrix processImage(String fileP, char* arr)
+{
+	
 	Matrix result = Matrix(height, width);
-	Mat bgr  =  imread ( fileP,  CV_LOAD_IMAGE_COLOR );
+	Mat bgr  =  imread (fileP,  CV_LOAD_IMAGE_COLOR );
+	
 	Mat res;
 	pyrMeanShiftFiltering( bgr, res, 12, 12, 3);
 	cv::Mat bgra;
@@ -312,9 +341,7 @@ Matrix processImage(String fileP)
 	cv::Mat abgr(bgra.size(), bgra.type());
 	int from_to[] = { 0,3, 1,1, 2,2, 3,0 };
 	cv::mixChannels(&bgra,1,&abgr,1,from_to,4);
-	Mat im = abgr;
-	Mat hsv;
-	cvtColor(imread ( fileP,  CV_LOAD_IMAGE_COLOR ), hsv, CV_BGR2HSV);
+	Mat im = abgr;	
 
 	char imMatrix[height][width];
 	for(int i = 0; i < im.rows; i+=square)
@@ -327,6 +354,43 @@ Matrix processImage(String fileP)
 			else {
 				result[i/square][j/square] = -1;
 			}
-		}
+		}	
+
+		result.shiftUnits();		
+	    correctImage(fileP,result);		
+		return processImage(correctImage(fileP,result),  arr);
+}
+
+Matrix processImage(Mat scaleMat, char* arr)
+{
+	static bool flag  = false;
+	Matrix result = Matrix(height, width);
+	Mat bgr =  scaleMat;
+	
+
+	Mat res;
+	pyrMeanShiftFiltering( bgr, res, 12, 12, 3);
+	cv::Mat bgra;
+
+	cv::cvtColor(res, bgra, cv::COLOR_BGR2BGRA);
+	cv::Mat abgr(bgra.size(), bgra.type());
+	int from_to[] = { 0,3, 1,1, 2,2, 3,0 };
+	cv::mixChannels(&bgra,1,&abgr,1,from_to,4);
+	Mat im = abgr;	
+
+	char imMatrix[height][width];
+	for(int i = 0; i < im.rows; i+=square)
+		for(int j = 0; j < im.cols; j+=square)
+		{
+			if(isSkinSquare(i, j, im) == true)
+			{
+				result[i/square][j/square] = 1;
+			}
+			else {
+				result[i/square][j/square] = -1;
+			}
+		}	
+
+		result.shiftUnits();	
 		return result;
 }
