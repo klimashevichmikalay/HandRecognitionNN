@@ -1,55 +1,38 @@
 #pragma once
-#include <ostream>
-#include <fstream>
 #include <iostream>
-#include <iomanip>
-#include <conio.h>
-#include <cmath>
+#include <fstream>
+#include <vector>
+#include <iterator>
+#include <algorithm>
 #include <string>
-class Matrix {
-	float** matrix;
-	int rows;
-	int columns;
-	float eps;
-public:
-	Matrix(int, int);
-	Matrix()
-	{ 
-		matrix = nullptr; 
-		eps = 0.000001;
-	}
-	Matrix(const Matrix&);
+#include <stdio.h>
+#include <sstream>
+#include <numeric>
+#include <functional>
+using namespace std;
 
-	~Matrix() {
-		if (matrix != nullptr){
-		
-	for (int i = 0; i < rows; i++)
-		delete[]matrix[i];
-		delete[]matrix;
-	}
-}
-	
-	Matrix Matrix::transpose(const Matrix &mt);
-	int getColumns() const { return columns; }
-	int getRows() const { return rows; }
-	float* operator[](int p) { return matrix[p]; }
-	const float* operator[](int p) const { return matrix[p]; }
-	Matrix& operator=(const Matrix&);
-	Matrix reshape(int rows, int columns) const;
-	friend Matrix operator*(Matrix&, Matrix&);
-	friend Matrix sum(const Matrix&, const Matrix&);
-	friend Matrix operator/(Matrix&, float);
-	friend Matrix operator*(float, Matrix&);
-	friend Matrix absMatrix(Matrix&);
-	friend Matrix multipleNumber(float d, const Matrix& m1);
-	friend std::ostream& operator<<(std::ostream& os, const Matrix& mt);
-	void operator+=(Matrix&);
-	bool operator==(const Matrix&);
-	Matrix T();
+class Matrix {
+private:
+	int rows;
+	int cols;	
+	vector<vector<float>> matrix;
+	static bool cmp(float x, float y);
+public:
+	inline int getRows() const;
+	inline int getCols() const;
+	Matrix();
+	Matrix(std::string file);
+	Matrix( const int& _rows, const int& _cols);
+	friend std::ostream& operator<<(std::ostream& os, const Matrix &mt);
+	void save(std::string file);	
+    bool Matrix::operator==(const Matrix& mt);	
+	friend	Matrix operator*(Matrix& m1, Matrix& m2);
+	friend Matrix operator*(float d, Matrix& m);
+	friend  Matrix operator+(Matrix& m1, Matrix& m2);
 	Matrix operator-(const Matrix& mt);
-	Matrix operator+(const Matrix& mt);
-	Matrix operator/(const Matrix& mt);
-	friend Matrix signMatrix(Matrix&);
-	friend void showMt(std::string name, const Matrix& mt);
-	friend bool isDiff(Matrix& mt1, Matrix& mt2, float eps);
+	Matrix T();	
+	Matrix reshape(int rows, int columns) const;
+	inline vector<float> & operator[](int x) { return matrix.at(x); }
+	inline const vector<float> operator[](int p) const { return matrix[p]; }
+	void show();
 };

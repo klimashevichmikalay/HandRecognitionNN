@@ -4,70 +4,94 @@
 #include <iostream>
 #include <math.h>
 #include "Matrix.h"
+#include "Matrix.h"
 
 using namespace cv;
 using namespace std;
 
-int width = 48;
-int height = 48;
-void recognize(Matrix Y, Matrix W );
-Matrix processImage(String);
+const int width = 40;
+const int height = 30;
+const int square = 16;
+
+void recognize(Matrix, Matrix);
+Matrix processImage(String fileP);
 void getScreens(String);
 bool isSkinPixel(Mat im, int x, int y);
 Matrix newTrain(Matrix* matrixs, int count);
 Matrix F(const Matrix& matrix);
-
-Matrix multiple(const Matrix &m1, const Matrix &m2)
-{
-	Matrix result(m1.getRows(), m2.getColumns());
-	for (int i = 0; i < m1.getRows(); i++)
-		for (int j = 0; j < m2.getColumns(); j++)
-			for (int k = 0; k < m1.getColumns(); k++)
-				(*((result[i]) + j)) = (*(m1[i] + k)) * (*(m2[k] + j));
-	return result;
-}
+Matrix train(Matrix* matrixs, int count);
 
 int main(int argc, char** argv)
-{ 	
-	//int i =0;	
-	//getScreens("qwerty");
-   // cout <<  processImage("qwerty0.JPG"); 
-	 Matrix matrixs[2];
-     matrixs[0] = processImage("ok0.JPG");  
-     //matrixs[1] = processImage("ok1.JPG"); 
-	// matrixs[2] = processImage("ok2.JPG");
-	// matrixs[3] = processImage("ok3.JPG");
-	 matrixs[1] = processImage("victory0.JPG");
-		//getScreens("newtest");
+{	
 	
-	Matrix W = newTrain(matrixs, 2);
-    recognize(processImage("ok9.JPG"), W);
-	 recognize(processImage("test3.JPG"), W);
-	  recognize(processImage("victory7.JPG"), W);	
+	//processImage("imageForLearn/image1.JPG").show();	
+
+	Matrix matrixs[3];
+	matrixs[0] = processImage("imageForLearn/image1.JPG");	
+	matrixs[1] = processImage("imageForLearn/image2.JPG"); 	
+	matrixs[2] = processImage("imageForLearn/image3.JPG");
 
 
-	cin.get();	
+	Matrix W = train(matrixs,3);
+	recognize(processImage("imageForLearn/recogn1.JPG"), W);
+	recognize(processImage("imageForLearn/recogn2.JPG"), W);
+	recognize(processImage("imageForLearn/recogn3.JPG"), W);
+
+	cin.get();
 	return 0;
 }
 
-Matrix newTrain(Matrix* matrixs, int count) {
+
+Matrix train(Matrix* matrixs, int count) {
+	float h = 0.8;
 	int N = height*width;
-	Matrix  W = Matrix(N, N);	
-	for (int i = 0; i < count; i++)   
-		W = sum(W,  multipleNumber(((float)(1.0 / (float)N)), multiple((matrixs[i].reshape(N, 1)), ((matrixs[i].reshape(N, 1)).T()))));	
-	return W;
+	Matrix  W = Matrix(N, N);
+
+	Matrix prevW(N, N);
+	int cnt = 0;
+	do {		
+		for (int i = 0; i < count; i++) {		  
+			Matrix Xi = matrixs[i].reshape(height*width, 1);		
+			W = W + ((h / N) * (Xi - W * Xi) * Xi.T()); 		  
+		}
+		if (W == prevW)		
+			return W;
+
+		prevW = W;
+	} while (true);
 }
 
-void recognize(Matrix Y, Matrix W ){	
-	cout << "\n image before recognize:\n" << Y.reshape(height, width);	
-	Y = Y.reshape(height*width, 1);//cout << signMatrix(Q.reshape(height, width));
-	cout << "\nrecognized image:\n" << F((W*Y).reshape(height, width));	
+void recognize(Matrix Y, Matrix W ){
+	cout << "\nim to recognize:\n";	
+	Y.show();
+
+	Matrix Q(height*width, 1);	
+	Matrix prevQ(height*width, 1);
+	Y = Y.reshape(height*width, 1);
+	int iterations = 100;
+	int count = 0;
+
+	do {				
+		Q = F(W*Y); 
+		if (Y == Q || prevQ == Q) {
+			cout << "\nNN worked good, answear: \n";			
+			(F(Q.reshape(height, width))).show();
+			return;
+		}
+		else {
+			prevQ = Y;
+			Y = Q;
+		}
+		count++;
+	} while (count < iterations);
+	cout << "\nNN worked bad, answear: \n";	
+	(F(Q.reshape(height, width))).show();
 }
 
 Matrix F(const Matrix& matrix) { 
-	Matrix result(matrix.getRows(), matrix.getColumns());
+	Matrix result(matrix.getRows(), matrix.getCols());
 	for (int i = 0; i < matrix.getRows(); i++)
-		for (int j = 0; j < matrix.getColumns(); j++) {
+		for (int j = 0; j < matrix.getCols(); j++) {
 			if (matrix[i][j] > 0)
 				result[i][j] = 1;
 			else if (matrix[i][j] < 0)
@@ -78,14 +102,14 @@ Matrix F(const Matrix& matrix) {
 
 bool isSkinSquare(int startRow, int startCol, Mat im){
 	int skinPixels = 0;
-	for(int i = startRow; i < startRow + 10; i++){
-		for(int j = startCol; j < startCol + 10; j++)
+	for(int i = startRow; i < startRow + square; i++){
+		for(int j = startCol; j < startCol + square; j++)
 		{
 			if(isSkinPixel(im, i, j))
 				skinPixels++;
 		}
 	}
-	if(skinPixels > 70)
+	if(skinPixels >= 150)
 		return true;
 
 	return false;
@@ -253,11 +277,11 @@ bool  isSkinPixel(Mat im, int x, int y)
 
 void getScreens(String nameScreen) {
 	VideoCapture cap;    
+
 	if(!cap.open(0))
 		return;
 
-	cap.set(CV_CAP_PROP_FRAME_WIDTH,480);
-	cap.set(CV_CAP_PROP_FRAME_HEIGHT,480);
+
 	int count = 0;
 	for(;;) {	
 		Mat frame;
@@ -270,7 +294,8 @@ void getScreens(String nameScreen) {
 			count++;
 			string str = ss.str();
 			String name = nameScreen + str;
-			cv::imwrite(name +  ".JPG", frame); 			
+			cv::imwrite(name +  ".JPG", frame); 
+			//processImage(name +  ".JPG").show();
 		}
 	}   
 }
@@ -291,17 +316,16 @@ Matrix processImage(String fileP)
 	Mat hsv;
 	cvtColor(imread ( fileP,  CV_LOAD_IMAGE_COLOR ), hsv, CV_BGR2HSV);
 
-	char imMatrix[48][48];
-	for(int i = 0; i < im.rows; i+=10)
-		for(int j = 0; j < im.cols; j+=10)
-		{	
-
+	char imMatrix[height][width];
+	for(int i = 0; i < im.rows; i+=square)
+		for(int j = 0; j < im.cols; j+=square)
+		{
 			if(isSkinSquare(i, j, im) == true)
 			{
-				result[i/10][j/10] = 1;
+				result[i/square][j/square] = 1;
 			}
 			else {
-				result[i/10][j/10] = -1;
+				result[i/square][j/square] = -1;
 			}
 		}
 		return result;
