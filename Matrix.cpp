@@ -180,8 +180,6 @@ shiftInfo Matrix::getShiftInfo()
 				if(j > _x1)
 					_x1 = j;
 			}
-
-
 		}
 
 		shiftInfo si;

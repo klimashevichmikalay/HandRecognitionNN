@@ -20,7 +20,8 @@ struct shiftInfo
 	int y1;	
 };
 
-class Matrix {
+class Matrix 
+{
 private:
 	int rows;
 	int cols;	
