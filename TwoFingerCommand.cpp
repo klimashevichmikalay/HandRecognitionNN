@@ -63,7 +63,7 @@ void TwoFingerCommand::retrain()
 
 	map<String, Matrix>::iterator itr;    
 	for (itr = matrix.begin(); itr != matrix.end(); ++itr)           
-		(recognize((itr->second))).save(matrixsPath + "/" + (getName(itr->first)) + ".txt");
+		(recognize((itr->second))).save(matrixsPath + "/" + (itr->first) + ".txt");
 }
 
 
