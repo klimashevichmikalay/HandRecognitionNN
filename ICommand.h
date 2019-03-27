@@ -7,6 +7,7 @@
 #include <windows.h>
 #include "Matrix.h"
 #include "Image.h"
+#include "HopfieldNN.h"
 
 using namespace cv;
 using namespace std;
@@ -15,11 +16,13 @@ enum fingersNumber {ONE = 1, TWO, THREE, FOUR};
 
 class ICommand
 {
-public:		
+public:	
 	virtual void addGesture(Image im, String name) = 0;
-	virtual	String recognize(Image im) = 0;
-	virtual	void retrain() = 0;
-	virtual	vector<string> get_all_files_names_within_folder(string folder);
-	virtual	String getName(String str) = 0;
-	virtual	Matrix recognize(Matrix Y) = 0;
+	virtual String recognize(Image im) = 0;
+	void addNewGesture(Image im, const String &name,const String &standartsPath,const String &matrixsPath, HopfieldNN &hnn);	
+	void retrain(const String &standartsPath,const String &matrixsPath, HopfieldNN &hnn);
+	vector<string> get_all_files_names_within_folder(const string &folder);
+	String getName(const String &str);
+	Matrix recognize(const Matrix &Y, HopfieldNN &hnn);
+	String recognizeImage(Image im,const String &matrixsPath, HopfieldNN &hnn);
 };

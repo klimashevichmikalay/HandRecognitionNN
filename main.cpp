@@ -22,33 +22,51 @@ String getName(String str);
 
 int main(int argc, char** argv)
 {
+	VideoCapture cap;    
+
+	if(!cap.open(0))
+		return 0;
+
 	Controller cntrl = Controller();
-	Mat m1  =  imread ("imageForLearn/recogn1.JPG",  CV_LOAD_IMAGE_COLOR );
-	cout << "\ngesture name:\n" << cntrl.recognize(m1);
 
-	
-	Mat m2  =  imread ("imageForLearn/recogn2.JPG",  CV_LOAD_IMAGE_COLOR );
-	cout << "\ngesture name:\n" << cntrl.recognize(m2);
-
-	Mat m3  =  imread ("imageForLearn/recogn3.JPG",  CV_LOAD_IMAGE_COLOR );
-	cout << "\ngesture name:\n" << cntrl.recognize(m3);
-
-	//test();
+	int count = 0;
+	for(;;) 
+	{	
+		Mat frame;
+		cap >> frame;
+		imshow("this is you, smile! :)", frame);
+		if( waitKey(10) == 27 ) {
+			count++;		
+			stringstream ss;
+			ss << count;
+			string str = ss.str();			
+			Image im =  Image(frame);
+			(im.getMatrix()).show();
+			cout << "\nIt is:\n" << cntrl.recognize(frame);
+		}	
+	    if( waitKey(10) == 32 )  
+		{
+			cout << "Enter a name for new gesture:\n";
+			String name;
+			cin >> name;
+			cntrl.addGesture(frame, name);
+		}
+	}
 	cin.get();
 	return 0;
 }
 
 String getName(String str)
- {
-	 String name = "";
-	 
-	 for(int i = 0; i < str.length(); i++)
-	 {
-		 if(!strchr("0123456789",str[i]))
-			 name += str[i];
-	 }
-	 return name;
- }
+{
+	String name = "";
+
+	for(int i = 0; i < str.length(); i++)
+	{
+		if(!strchr("0123456789",str[i]))
+			name += str[i];
+	}
+	return name;
+}
 
 vector<string> get_all_files_names_within_folder(string folder)
 {
@@ -97,49 +115,16 @@ void getScreens(String nameScreen) {
 
 void test()
 {
-	vector<Matrix> matrixs;
+	Controller cntrl = Controller();	
+	cout << "\ngesture name(ok):\n" << cntrl.recognize(imread ("imageForLearn/recogn1.JPG", CV_LOAD_IMAGE_COLOR));
+	cout << "\ngesture name(vikt):\n" << cntrl.recognize(imread("imageForLearn/recogn2.JPG", CV_LOAD_IMAGE_COLOR));	
+	cout << "\ngesture name:\(ok)n" << cntrl.recognize(imread("imageForLearn/recogn3.JPG", CV_LOAD_IMAGE_COLOR));
+	cout << "\n\nafter add new gesture:\n";
+	cntrl.addGesture(imread("imageForLearn/rock.JPG", CV_LOAD_IMAGE_COLOR), "weWillRockYou");
 
-	Mat bgr1  =  imread ("imageForLearn/image1.JPG",  CV_LOAD_IMAGE_COLOR );
-	Image im1 =  Image(bgr1);	
-	matrixs.push_back(im1.getMatrix());
-
-	Mat bgr2  =  imread ("imageForLearn/image2.JPG",  CV_LOAD_IMAGE_COLOR );
-	Image im2 =  Image(bgr2);
-	matrixs.push_back(im2.getMatrix());
-
-	Mat bgr3  =  imread ("imageForLearn/image3.JPG",  CV_LOAD_IMAGE_COLOR );
-	Image im3 =  Image(bgr3);
-	matrixs.push_back(im3.getMatrix());
-
-	HopfieldNN hopnn = HopfieldNN();
-	hopnn.setStandarts(matrixs);
-	hopnn.train();
-
-	/////////////////////////////////
-	////////////////////////////////////
-
-	Mat bgr4  =  imread ("imageForLearn/recogn1.JPG",  CV_LOAD_IMAGE_COLOR );
-	Image im4 =  Image(bgr4);
-	cout << "\nim for recognize:\n";
-	im4.getMatrix().show();
-	cout << "\nafter recognize:\n";
-	(hopnn.recognize(im4.getMatrix())).show();
-
-
-	Mat bgr5  =  imread ("imageForLearn/recogn2.JPG",  CV_LOAD_IMAGE_COLOR );
-	Image im5 =  Image(bgr5);
-	cout << "\nim for recognize:\n";
-	im5.getMatrix().show();
-	cout << "\nafter recognize:\n";
-	(hopnn.recognize(im5.getMatrix())).show();
-
-
-	Mat bgr6  =  imread ("imageForLearn/recogn3.JPG",  CV_LOAD_IMAGE_COLOR );
-	Image im6 =  Image(bgr6);
-	cout << "\nim for recognize:\n";
-	im6.getMatrix().show();
-	cout << "\nafter recognize:\n";
-	(hopnn.recognize(im6.getMatrix())).show();
+	cout << "\ngesture name(ok):\n" << cntrl.recognize(imread ("imageForLearn/recogn1.JPG", CV_LOAD_IMAGE_COLOR));
+	cout << "\ngesture name(v):\n" << cntrl.recognize(imread("imageForLearn/recogn2.JPG", CV_LOAD_IMAGE_COLOR));	
+	cout << "\ngesture name(rock):\n" << cntrl.recognize(imread("imageForLearn/recogn3.JPG", CV_LOAD_IMAGE_COLOR)); 
 
 }
 

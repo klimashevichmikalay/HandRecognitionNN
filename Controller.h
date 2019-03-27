@@ -13,19 +13,17 @@
 using namespace cv;
 using namespace std;
 
-
-
 class Controller
 {
 public:	
 	enum fingersNumber {ONE = 1, TWO, THREE, FOUR};
 	Controller();
 	String recognize(Mat mat);
-	void addGesture(Mat mat, String name);
+	String addGesture(Mat mat, String name);
 private:	
-	//OneFingerCommand ofc;
+	OneFingerCommand ofc;
 	TwoFingerCommand tfc;
-	//ThreeFingerCommand thfc;
-	//FourFingerCommand ffc;
+	ThreeFingerCommand thfc;
+	FourFingerCommand ffc;
 	map <fingersNumber, ICommand*> commands;
 };

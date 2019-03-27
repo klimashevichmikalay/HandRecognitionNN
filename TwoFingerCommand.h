@@ -13,14 +13,12 @@ class TwoFingerCommand: public ICommand
 {
 public:
 	TwoFingerCommand();
-	String standartsPath;
-	String matrixsPath;	
 	void addGesture(Image im, String name);
 	String recognize(Image im);
-	vector<string> get_all_files_names_within_folder(string folder);
-	void retrain();
-	String getName(String str);
+
 private:
 	HopfieldNN hnn;
-	Matrix recognize(Matrix Y);
+	String standartsPath;
+	String matrixsPath;
+	vector<string> get_all_files_names_within_folder(string folder);
 };

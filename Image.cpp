@@ -36,10 +36,10 @@ int Image::countFingers()
 
 	for (int j = 0; j < matrix.getCols(); j++) 
 	{
-		if(matrix[8][j] == 1)			
+		if(matrix[6][j] == 1)			
 			skin = true;
 
-		if(matrix[8][j] == -1 && skin)			
+		if(matrix[6][j] == -1 && skin)			
 		{
 			count++;
 			skin = false;

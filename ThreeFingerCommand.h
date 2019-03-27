@@ -1,16 +1,24 @@
-/*#pragma once
+#pragma once
 #include <stdlib.h>
 #include <iostream>
 #include <math.h>
+#include <algorithm>
 #include "Matrix.h"
 #include "ICommand.h"
+#include "HopfieldNN.h"
 
 using namespace std;
 
-class ThreeFingerCommand: public  ICommand
+class ThreeFingerCommand: public ICommand
 {
 public:
 	ThreeFingerCommand();
-//	const String standartsPath = "threeFinger/";
-//	const String matrixsPath = "threeFingerMatrixs/";
-};*/
+	void addGesture(Image im, String name);
+	String recognize(Image im);
+
+private:
+	HopfieldNN hnn;
+	String standartsPath;
+	String matrixsPath;
+	vector<string> get_all_files_names_within_folder(string folder);
+};
