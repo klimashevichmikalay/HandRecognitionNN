@@ -7,6 +7,45 @@ Image::Image(Mat _mt)
 	height = 30;
 	square = 16;
 	isCorrected = false;
+	this->matrix = createImageMatrix(this->mt);
+}
+
+Image::Image(String path)
+{
+	mt = imread(path, CV_LOAD_IMAGE_COLOR );
+	width = 40;
+	height = 30;
+	square = 16;
+	isCorrected = false;
+	this->matrix = createImageMatrix(this->mt);
+}
+
+Matrix Image::getMatrix()
+{
+	return this->matrix;
+}
+
+void Image::saveImage(String path)
+{
+	cv::imwrite(path, mt);
+}
+int Image::countFingers()
+{
+	bool skin = false;
+	int count = 0;
+
+	for (int j = 0; j < matrix.getCols(); j++) 
+	{
+		if(matrix[8][j] == 1)			
+			skin = true;
+
+		if(matrix[8][j] == -1 && skin)			
+		{
+			count++;
+			skin = false;
+		}
+	}
+	return count;
 }
 
 Mat Image::matToBgra(Mat _mt)
@@ -154,7 +193,7 @@ Mat Image::correctImage(Matrix m)
 	return  mt;
 }
 
-Matrix Image::getImageMatrix(Mat input)
+Matrix Image::createImageMatrix(Mat input)
 {
 	Matrix imMatrix = Matrix(height, width);	
 	Mat im =  matToBgra(input);
@@ -170,17 +209,14 @@ Matrix Image::getImageMatrix(Mat input)
 			}
 		}
 
-
 		if(!isCorrected)				
-			return getImageMatrix(correctImage(imMatrix));
+			return createImageMatrix(correctImage(imMatrix));
 		else
 		{
 			isCorrected = false;
+			this->matrix = imMatrix;
 			return imMatrix;
 		}
 }
 
-Matrix Image::getMatrix() {
-   return getImageMatrix(this->mt);
-}
 

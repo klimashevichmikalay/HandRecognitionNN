@@ -161,7 +161,7 @@ shiftInfo Matrix::getShiftInfo()
 	int _y = 1000;
 	int _x1 = 0;
 	int _y1 = 0;
-	
+
 
 	for (int i = 0; i < rows; i++)	
 		for (int j = 0; j < cols; j++) 
@@ -197,9 +197,12 @@ void Matrix::show()
 	{
 		for (int j = 0; j < cols; j++) 
 			if((*this)[i][j] == 1)			
-				cout<< '#';			
+			{
+				cout<< '#';	}		
 			else		
-				cout<<' ';		
-		cout << endl;
+			{
+				cout<<' ';
+			}	
+			cout << endl;
 	}
 }

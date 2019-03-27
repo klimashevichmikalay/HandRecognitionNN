@@ -35,12 +35,16 @@ class Image
 {
 public:
 	Image(Mat _mt);
+	Image(String path);
 	Matrix getMatrix();
+	int countFingers();
+	void saveImage(String path);
 private:
 	int width;
 	int height;
 	int square;
 	bool isCorrected;
+	Matrix matrix;
 	Mat mt;	
 	bool isSkinSquare(int startRow, int startCol, Mat im);
 	HSV bgrToHsv(BGRA in);	
@@ -48,5 +52,5 @@ private:
 	bool  isSkinPixel(int x, int y, Mat im);
 	Mat Image::correctImage(Matrix m);
 	Mat matToBgra(Mat _mt);
-	Matrix getImageMatrix(Mat im);
+	Matrix createImageMatrix(Mat im);	
 };

@@ -52,8 +52,7 @@ Matrix HopfieldNN::recognize(Matrix Y)
 	{				
 		Q = F(W*Y);
 		if (Y == Q || prevQ == Q)
-		{				
-			(F(Q.reshape(height, width))).show();
+		{		
 			return (F(Q.reshape(height, width)));			
 		}
 		else

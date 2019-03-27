@@ -15,6 +15,7 @@ public:
 	Matrix F(const Matrix& matrix);
 	void setW(Matrix _W);
 	void setStandarts(vector<Matrix> _standards);
+	Matrix getW(){return W;}
 private:
 	int width;
 	int height;
