@@ -30,5 +30,6 @@ String Controller::addGesture(Mat mat, String name)
 		return "Bad gesture image. Try again.";
 
 	commands.find(fingersNumber(fingers))->second->addGesture(im, name);
+	MessageBox(NULL, "New gesture added.", "Continue?",  MB_YESNO);
 	return "New gesture added.";
 }

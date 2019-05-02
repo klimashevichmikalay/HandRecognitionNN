@@ -6,6 +6,7 @@
 #include "HopfieldNN.h"
 #include "Controller.h"
 #include <Windows.h>
+#include <tchar.h>
 
 using namespace cv;
 using namespace std;
@@ -16,8 +17,10 @@ const int square = 16;
 
 void test();
 void getScreens(String nameScreen);
+std::wstring s2ws(const std::string& s);
 vector<string> get_all_files_names_within_folder(string folder);
 String getName(String str);
+
 
 
 int main(int argc, char** argv)
@@ -35,18 +38,25 @@ int main(int argc, char** argv)
 		Mat frame;
 		cap >> frame;
 		imshow("this is you, smile! :)", frame);
-		if( waitKey(10) == 27 ) {
-			count++;		
-			stringstream ss;
-			ss << count;
-			string str = ss.str();			
+		if( waitKey(10) == 32 ) {
+				
 			Image im =  Image(frame);
-			(im.getMatrix()).show();
-			cout << "\nIt is:\n" << cntrl.recognize(frame);
+			(im.getMatrix()).show();	
+			String res = cntrl.recognize(frame);
+			cout << "\nResult: " + res;
+		    int result = MessageBox(NULL, res.c_str(), "Continue?",  MB_YESNO);
+			switch (result)
+			{
+			case IDYES:				
+				break;
+			case IDNO:
+				exit(0);
+				break;	
+			}
 		}	
-	    if( waitKey(10) == 32 )  
+		if( waitKey(10) == 9 )  
 		{
-			cout << "Enter a name for new gesture:\n";
+			cout << "\nEnter a name for new gesture:\n";
 			String name;
 			cin >> name;
 			cntrl.addGesture(frame, name);
@@ -88,6 +98,17 @@ vector<string> get_all_files_names_within_folder(string folder)
 	return names;
 }
 
+std::wstring s2ws(const std::string& s)
+{
+    int len;
+    int slength = (int)s.length() + 1;
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0); 
+    wchar_t* buf = new wchar_t[len];
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+    std::wstring r(buf);
+    delete[] buf;
+    return r;
+}
 
 void getScreens(String nameScreen) {
 	VideoCapture cap;    
@@ -127,4 +148,3 @@ void test()
 	cout << "\ngesture name(rock):\n" << cntrl.recognize(imread("imageForLearn/recogn3.JPG", CV_LOAD_IMAGE_COLOR)); 
 
 }
-
